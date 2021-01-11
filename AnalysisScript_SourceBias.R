@@ -1,9 +1,4 @@
-setwd("/Users/manu/Documents/RProject/SourceBias")
-options(scipen=999)
-options(digits= 3)
-
-
-##Simple LME: checking different models
+## required packages
 library(lme4)
 library(lmerTest)
 library(ggplot2)
@@ -67,6 +62,7 @@ alpha(items.cons2)
 
 items.both <- select(dataBOTH, 23,24,25,26,27)
 alpha(items.both)
+
 # setting up for an ANOVA with effects coding
 library(car)
 groupBOTH<-as.factor(dataBOTH$Group)
@@ -88,6 +84,7 @@ subjectPROF<-as.factor(dataPROF$subject)
 trackPROF<- as.factor(dataPROF$song)
 PCAscore<- as.numeric(dataPROF$PCA)
 contrasts(sourcePROF)<-contr.sum
+
 #Like
 m2PROF <- lmer(PCAscore ~ sourcePROF+(1|subjectPROF)+(1|trackPROF)+(1|BrandGroup),data=dataPROF)
 Anova(m2PROF,type="III")
@@ -99,9 +96,11 @@ summary(m2PROF, split=list( cond=list(AvB=1, CvAB=2, CtrlvElse=3),dose=list(Line
 a= step(m2PROF)
 plot(a)
 r.squaredGLMM(m2PROF)
+
 #if I want to use post hoc bonferroni
 postPROF <- glht(m2PROF, lsm(pairwise ~ sourcePROF))
 Holmpost = summary(postPROF, test=adjusted("holm"))
+
 #Money professionals
 m2moPROF <- lmer(Money ~ sourcePROF+(1|subjectPROF)+(1|trackPROF)+(1|BrandGroup),data=dataPROF)
 Anova(m2moPROF,type="III")
@@ -109,13 +108,17 @@ summary(m2moPROF)
 b=step(m2moPROF)
 plot(b)
 r.squaredGLMM(m2moPROF)
+
+###########
 #Consumers
+###########
 groupCONS<-as.factor(dataCONS$Group)
 sourceCONS<-as.factor(dataCONS$Origin)
 subjectCONS<-as.factor(dataCONS$subject)
 trackCONS<- as.factor(dataCONS$song)
 PCAscores<- as.numeric(dataCONS$PCA)
 contrasts(sourceCONS)<-contr.sum
+
 ##PCA
 m2CONS <- lmer(PCA ~ sourceCONS+(1|subjectCONS)+(1|trackCONS)+(1|BrandGroup),data=dataCONS)
 Anova(m2CONS,type="III")
@@ -124,11 +127,13 @@ r.squaredGLMM(m2CONS)
 
 m2CONS <- lmer(PCA ~ sourceCONS*BrandGroup+(1|subjectCONS)+(1|trackCONS),data=dataCONS)
 Anova(m2CONS,type="III")
+
 ##Money
 m2moCONS <- lmer(Money ~ sourceCONS+(1|subjectCONS)+(1|trackCONS)+(1|BrandGroup),data=dataCONS)
 Anova(m2moCONS,type="III")
 summary(m2av4CONS)
 r.squaredGLMM(m2moCONS)
+
 #agreeeeees
 m.agree1 <- lmer(Agree1 ~ sourceCONS+(1|subjectCONS)+(1|trackCONS),data=dataCONS)
 m.agree2 <- lmer(Agree2 ~ sourceCONS+(1|subjectCONS)+(1|trackCONS),data=dataCONS)
@@ -137,7 +142,6 @@ m.agree3 <- lmer(Agree3 ~ sourceCONS+(1|subjectCONS)+(1|trackCONS),data=dataCONS
 Anova(m.agree1,type="III")
 summary(m2av4CONS)
 r.squaredGLMM(m2moCONS)
-
 
 #graphs - line
 lineMoney1<-ggplot(X1RareCasesEliminated,aes(Origin,Money, colour=Group))
@@ -149,7 +153,7 @@ lineAV41 + stat_summary(fun.y=mean,geom="point")+stat_summary(fun.y=mean,geom="l
 h1<-ggplot(dataPROF, aes(AV4)) + geom_histogram(aes(y = ..density..), colour = "black", fill = "white") + labs(x = "xxx", y = "Density")
 h1 + stat_function(fun = dnorm, args = list(mean = mean(dataPROF$AV4, na.rm = TRUE), sd = sd(dataPROF$AV4, na.rm = TRUE)), colour = "red", size = 1)
 
-#EXPLORATION
+#Explore
 groupBOTH<-as.factor(dataBOTH$Group)
 sourceBOTH<-as.factor(dataBOTH$Origin)
 subjectBOTH<-as.factor(dataBOTH$subject)
@@ -250,7 +254,6 @@ ggarrange(ae.plot,money.plot, ncol=1, nrow=2)
 
 
 #Final question on awarness:
-
 by(dataBOTH$EffectLabel, dataBOTH$Group, stat.desc, basic = FALSE, norm = TRUE) 
 ind.t.test<- t.test(EffectLabel ~ Group, data = dataBOTH, paired = FALSE)
 t<-ind.t.test$statistic[[1]] #create a variable that contains the value of t
